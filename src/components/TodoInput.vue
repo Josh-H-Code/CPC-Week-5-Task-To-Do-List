@@ -93,7 +93,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         </button>
 
         <button type="submit" class="todo-input-form__submit-btn">
-          <span>Add Task</span>
+          <span>Add New Grocery</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

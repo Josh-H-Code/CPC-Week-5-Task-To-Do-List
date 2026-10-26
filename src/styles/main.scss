@@ -1,0 +1,153 @@
+@use './variables' as *;
+@use './mixins' as *;
+@use './reset' as *;
+
+body {
+  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+              $bg-body;
+  background-attachment: fixed;
+  color: $text-main;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Global App Container
+.app-container {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-xl $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @include mobile {
+    padding: $spacing-md $spacing-sm;
+    gap: $spacing-md;
+  }
+}
+
+// Category badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2xs;
+  padding: 0.2rem 0.55rem;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  &--study {
+    background-color: #e0e7ff;
+    color: #4338ca;
+  }
+  &--work {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+  &--personal {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+  }
+  &--health {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+  &--coding {
+    background-color: #cffafe;
+    color: #0e7490;
+  }
+}
+
+// Priority pills
+.priority-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: 600;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &--low {
+    background-color: $priority-low-bg;
+    color: $priority-low;
+    .priority-pill__dot {
+      background-color: $priority-low;
+    }
+  }
+
+  &--medium {
+    background-color: $priority-medium-bg;
+    color: $priority-medium;
+    .priority-pill__dot {
+      background-color: $priority-medium;
+    }
+  }
+
+  &--high {
+    background-color: $priority-high-bg;
+    color: $priority-high;
+    .priority-pill__dot {
+      background-color: $priority-high;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all $transition-smooth;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+}
+
+.list-leave-active {
+  position: absolute;
+  width: 100%;
+}

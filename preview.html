@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow — Vue 3 + TypeScript + Sass Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        min-height: 100vh;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #0f172a;
+        background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+                    #f8fafc;
+        background-attachment: fixed;
+        line-height: 1.5;
+        padding: 2rem 1rem;
+      }
+      .app-container {
+        max-width: 720px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .brand-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+      }
+      .brand-icon svg { width: 22px; height: 22px; }
+      .brand h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+      .brand p { font-size: 0.75rem; color: #64748b; font-weight: 500; }
+      .header-right { display: flex; align-items: center; gap: 0.5rem; }
+      .date-badge {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #64748b;
+        background: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        border: 1px solid #e2e8f0;
+      }
+      .btn-reset {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-reset:hover {
+        color: #6366f1;
+        background: rgba(99, 102, 241, 0.08);
+        border-color: #e0e7ff;
+      }
+      .btn-reset svg { width: 14px; height: 14px; }
+      /* Cards */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      }
+      /* Stats */
+      .stats-card {
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+      .stats-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .stats-label { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+      .stats-fraction { font-size: 0.75rem; color: #64748b; margin-left: 0.5rem; }
+      .stats-percent { font-size: 1rem; font-weight: 800; color: #6366f1; }
+      .progress-track {
+        width: 100%;
+        height: 10px;
+        background: #f1f5f9;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        border-radius: 9999px;
+        transition: width 0.5s ease;
+      }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+      }
+      .metric-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+      .metric-box .val { font-size: 1.25rem; font-weight: 800; }
+      .metric-box .lbl { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+      .metric-box--total .val { color: #0f172a; }
+      .metric-box--active .val { color: #f59e0b; }
+      .metric-box--done .val { color: #10b981; }
+      /* Form */
+      .input-card {
+        padding: 1rem;
+      }
+      .input-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .main-input {
+        flex: 1;
+        height: 48px;
+        padding: 0 1rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.15s;
+      }
+      .main-input:focus {
+        border-color: #6366f1;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+      }
+      .btn-toggle-options {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-toggle-options:hover {
+        color: #6366f1;
+        border-color: #e0e7ff;
+      }
+      .btn-toggle-options svg {
+        width: 18px;
+        height: 18px;
+        transition: transform 0.2s;
+      }
+      .btn-toggle-options.active svg {
+        transform: rotate(45deg);
+      }
+      .btn-add {
+        height: 48px;
+        padding: 0 1.25rem;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+        transition: all 0.15s;
+      }
+      .btn-add:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+      }
+      .btn-add svg { width: 16px; height: 16px; }
+      .input-details {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .desc-textarea {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        font-family: inherit;
+        font-size: 0.875rem;
+        outline: none;
+      }
+      .desc-textarea:focus {
+        border-color: #6366f1;
+        background: white;
+      }
+      .options-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: flex-end;
+      }
+      .opt-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .opt-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .opt-select, .opt-date {
+        height: 38px;
+        padding: 0 0.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        font-size: 0.875rem;
+        outline: none;
+      }
+      .priority-btns { display: flex; gap: 0.25rem; }
+      .p-btn {
+        height: 38px;
+        padding: 0 0.65rem;
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .p-btn .dot { width: 6px; height: 6px; border-radius: 50%; }
+      .p-btn.low .dot { background: #10b981; }
+      .p-btn.medium .dot { background: #f59e0b; }
+      .p-btn.high .dot { background: #ef4444; }
+      .p-btn.active.low { background: #ecfdf5; border-color: #10b981; color: #10b981; }
+      .p-btn.active.medium { background: #fffbeb; border-color: #f59e0b; color: #f59e0b; }
+      .p-btn.active.high { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+      /* Filters */
+      .filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .filters-top {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .search-box {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .search-box svg {
+        position: absolute;
+        left: 0.75rem;
+        width: 16px;
+        height: 16px;
+        color: #94a3b8;
+      }
+      .search-input {
+        width: 100%;
+        height: 40px;
+        padding: 0 2.25rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        font-size: 0.875rem;
+        outline: none;
+      }
+      .search-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+      }
+      .search-clear {
+        position: absolute;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        display: flex;
+      }
+      .filter-tabs {
+        display: flex;
+        background: #e2e8f0;
+        padding: 3px;
+        border-radius: 12px;
+        gap: 2px;
+      }
+      .tab-btn {
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .tab-btn.active {
+        background: white;
+        color: #6366f1;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      }
+      .tab-count {
+        background: rgba(15, 23, 42, 0.08);
+        font-size: 0.7rem;
+        padding: 1px 6px;
+        border-radius: 9999px;
+      }
+      .tab-btn.active .tab-count {
+        background: #e0e7ff;
+        color: #6366f1;
+      }
+      .filters-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .filter-dropdowns { display: flex; gap: 0.5rem; }
+      .f-select {
+        height: 34px;
+        padding: 0 0.5rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        outline: none;
+        cursor: pointer;
+      }
+      .sort-group {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+      /* Items */
+      .todo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        list-style: none;
+      }
+      .todo-item {
+        padding: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        transition: all 0.2s;
+      }
+      .todo-item:hover {
+        border-color: rgba(99, 102, 241, 0.25);
+      }
+      .todo-item.completed {
+        opacity: 0.72;
+        background: rgba(248, 250, 252, 0.85);
+      }
+      .todo-item.completed .item-title {
+        text-decoration: line-through;
+        color: #64748b;
+      }
+      /* Checkbox */
+      .chk-label {
+        position: relative;
+        display: inline-flex;
+        cursor: pointer;
+        margin-top: 3px;
+      }
+      .chk-label input { position: absolute; opacity: 0; }
+      .chk-box {
+        width: 22px;
+        height: 22px;
+        border-radius: 8px;
+        border: 2px solid #cbd5e1;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .chk-box svg {
+        width: 14px;
+        height: 14px;
+        color: white;
+        opacity: 0;
+        transform: scale(0.6);
+        transition: all 0.15s;
+      }
+      .chk-label input:checked + .chk-box {
+        background: #6366f1;
+        border-color: #6366f1;
+      }
+      .chk-label input:checked + .chk-box svg {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .item-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .item-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .item-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+        cursor: pointer;
+      }
+      .item-desc {
+        font-size: 0.875rem;
+        color: #64748b;
+        line-height: 1.4;
+      }
+      .item-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+      }
+      /* Badges */
+      .badge {
+        padding: 0.2rem 0.55rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .badge--coding { background: #cffafe; color: #0e7490; }
+      .badge--study { background: #e0e7ff; color: #4338ca; }
+      .badge--work { background: #e0f2fe; color: #0369a1; }
+      .badge--personal { background: #f3e8ff; color: #7e22ce; }
+      .badge--health { background: #dcfce7; color: #15803d; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+      .pill--low { background: #ecfdf5; color: #10b981; }
+      .pill--low .pill-dot { background: #10b981; }
+      .pill--medium { background: #fffbeb; color: #f59e0b; }
+      .pill--medium .pill-dot { background: #f59e0b; }
+      .pill--high { background: #fef2f2; color: #ef4444; }
+      .pill--high .pill-dot { background: #ef4444; }
+      .due-tag {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .due-tag svg { width: 12px; height: 12px; }
+      .due--overdue { background: #fee2e2; color: #dc2626; }
+      .due--today { background: #fef3c7; color: #d97706; }
+      .due--soon { background: #eff6ff; color: #2563eb; }
+      .due--normal { background: #f1f5f9; color: #64748b; }
+      /* Actions */
+      .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .act-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .act-btn svg { width: 16px; height: 16px; }
+      .act-btn:hover { background: #f1f5f9; }
+      .act-btn.edit:hover { color: #6366f1; }
+      .act-btn.del:hover { color: #ef4444; background: #fee2e2; }
+      /* Footer */
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+        color: #64748b;
+      }
+      .footer-actions { display: flex; gap: 0.5rem; }
+      .f-btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #64748b;
+        cursor: pointer;
+      }
+      .f-btn:hover { background: white; color: #0f172a; }
+      .f-btn.danger:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+      /* Empty */
+      .empty-box {
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .empty-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #e0e7ff;
+        color: #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.25rem;
+      }
+      .empty-icon svg { width: 28px; height: 28px; }
+      .empty-box h3 { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
+      .empty-box p { font-size: 0.875rem; color: #64748b; }
+      @media (max-width: 640px) {
+        .header { flex-direction: column; align-items: flex-start; }
+        .filters-top { flex-direction: column; }
+        .filter-tabs { width: 100%; justify-content: stretch; }
+        .tab-btn { flex: 1; justify-content: center; }
+        .footer { flex-direction: column; gap: 0.75rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app-container">
+      <!-- Header -->
+      <header class="header">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
+          <div>
+            <h1>TaskFlow</h1>
+            <p>CPC Week 5 • Vue 3 + TypeScript + Sass Interactive Demo</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="date-badge">{{ formattedDate }}</span>
+          <button class="btn-reset" @click="resetToDefaults" title="Reset sample tasks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+            Reset Sample
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="glass-card stats-card">
+        <div class="stats-header">
+          <div>
+            <span class="stats-label">Progress</span>
+            <span class="stats-fraction">{{ stats.completed }} of {{ stats.total }} completed</span>
+          </div>
+          <span class="stats-percent">{{ stats.percentage }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" :style="{ width: stats.percentage + '%' }"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box metric-box--total">
+            <span class="val">{{ stats.total }}</span>
+            <span class="lbl">Total Tasks</span>
+          </div>
+          <div class="metric-box metric-box--active">
+            <span class="val">{{ stats.active }}</span>
+            <span class="lbl">Pending</span>
+          </div>
+          <div class="metric-box metric-box--done">
+            <span class="val">{{ stats.completed }}</span>
+            <span class="lbl">Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <div class="glass-card input-card">
+        <form @submit.prevent="addTodo">
+          <div class="input-row">
+            <input
+              v-model="newTitle"
+              class="main-input"
+              placeholder="What needs to be done? (e.g. Finish Week 5 Task...)"
+              @focus="isExpanded = true"
+            />
+            <button
+              type="button"
+              class="btn-toggle-options"
+              :class="{ active: isExpanded }"
+              @click="isExpanded = !isExpanded"
+              title="Toggle extra options"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <button type="submit" class="btn-add">
+              <span>Add Task</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <div v-if="isExpanded" class="input-details">
+            <textarea
+              v-model="newDesc"
+              class="desc-textarea"
+              placeholder="Add optional notes or description..."
+              rows="2"
+            ></textarea>
+            <div class="options-row">
+              <div class="opt-group">
+                <label class="opt-label">Category</label>
+                <select v-model="newCategory" class="opt-select">
+                  <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                </select>
+              </div>
+              <div class="opt-group">
+                <label class="opt-label">Priority</label>
+                <div class="priority-btns">
+                  <button
+                    v-for="p in priorities"
+                    :key="p.value"
+                    type="button"
+                    class="p-btn"
+                    :class="[p.value, { active: newPriority === p.value }]"
+                    @click="newPriority = p.value"
+                  >
+                    <span class="dot"></span>
+                    {{ p.label }}
+                  </button>
+                </div>
+              </div>
+              <div class="opt-group">
+                <label class="opt-label">Due Date</label>
+                <input v-model="newDueDate" type="date" class="opt-date" />
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="filters-container">
+        <div class="filters-top">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              v-model="searchQuery"
+              class="search-input"
+              placeholder="Search tasks..."
+            />
+            <button v-if="searchQuery" class="search-clear" @click="searchQuery = ''">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="filter-tabs">
+            <button
+              v-for="tab in ['all', 'active', 'completed']"
+              :key="tab"
+              class="tab-btn"
+              :class="{ active: currentFilter === tab }"
+              @click="currentFilter = tab"
+            >
+              <span>{{ tab === 'all' ? 'All' : tab === 'active' ? 'Active' : 'Done' }}</span>
+              <span class="tab-count">{{ tab === 'all' ? stats.total : tab === 'active' ? stats.active : stats.completed }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filters-bottom">
+          <div class="filter-dropdowns">
+            <select v-model="categoryFilter" class="f-select">
+              <option value="all">All Categories</option>
+              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+            </select>
+            <select v-model="priorityFilter" class="f-select">
+              <option value="all">All Priorities</option>
+              <option v-for="p in priorities" :key="p.value" :value="p.value">{{ p.label }} Priority</option>
+            </select>
+          </div>
+
+          <div class="sort-group">
+            <span>Sort:</span>
+            <select v-model="sortBy" class="f-select">
+              <option value="createdAt">Recently Added</option>
+              <option value="dueDate">Due Date</option>
+              <option value="priority">Highest Priority</option>
+              <option value="title">Alphabetical (A-Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div v-if="filteredTodos.length > 0">
+        <ul class="todo-list">
+          <li
+            v-for="todo in filteredTodos"
+            :key="todo.id"
+            class="glass-card todo-item"
+            :class="{ completed: todo.completed }"
+          >
+            <!-- Checkbox -->
+            <label class="chk-label">
+              <input type="checkbox" :checked="todo.completed" @change="toggleTodo(todo.id)" />
+              <span class="chk-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </span>
+            </label>
+
+            <!-- Body -->
+            <div class="item-body">
+              <div class="item-title-row">
+                <span class="item-title">{{ todo.title }}</span>
+                <span class="badge" :class="'badge--' + todo.category.toLowerCase()">{{ todo.category }}</span>
+                <span class="pill" :class="'pill--' + todo.priority">
+                  <span class="pill-dot"></span>
+                  {{ todo.priority }}
+                </span>
+              </div>
+              <p v-if="todo.description" class="item-desc">{{ todo.description }}</p>
+              <div class="item-meta">
+                <span v-if="getDueStatus(todo.dueDate)" class="due-tag" :class="'due--' + getDueStatus(todo.dueDate).type">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  {{ getDueStatus(todo.dueDate).text }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Delete -->
+            <div class="item-actions">
+              <button class="act-btn del" @click="deleteTodo(todo.id)" title="Delete task">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="glass-card empty-box">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <h3>{{ searchQuery ? 'No matching tasks found' : 'All clear! No tasks here' }}</h3>
+        <p>{{ searchQuery ? 'Try refining your search terms or clearing your filters.' : 'Add a new task above or relax and enjoy your day!' }}</p>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div>
+          <strong>{{ stats.active }}</strong> {{ stats.active === 1 ? 'task' : 'tasks' }} remaining
+        </div>
+        <div class="footer-actions">
+          <button v-if="stats.total > 0" class="f-btn" @click="markAllToggle">
+            {{ stats.active === 0 ? 'Mark All Active' : 'Mark All Done' }}
+          </button>
+          <button v-if="stats.completed > 0" class="f-btn danger" @click="clearCompleted">
+            Clear Completed ({{ stats.completed }})
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, watch, onMounted } = Vue;
+
+      const SAMPLE_TODOS = [
+        {
+          id: '1',
+          title: 'Initialize Vue 3 & Vite with TypeScript',
+          description: 'Set up modern tooling with strict TypeScript typing and fast HMR.',
+          completed: true,
+          priority: 'high',
+          category: 'Coding',
+          dueDate: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+          createdAt: Date.now() - 172800000
+        },
+        {
+          id: '2',
+          title: 'Design clean responsive UI with Sass (SCSS)',
+          description: 'Leverage variables, mixins, and BEM modular component styling.',
+          completed: true,
+          priority: 'high',
+          category: 'Coding',
+          dueDate: new Date().toISOString().split('T')[0],
+          createdAt: Date.now() - 86400000
+        },
+        {
+          id: '3',
+          title: 'Implement Task Filters & LocalStorage Persistence',
+          description: 'Ensure state persists across browser reloads and users can filter by status/category.',
+          completed: false,
+          priority: 'medium',
+          category: 'Study',
+          dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+          createdAt: Date.now() - 3600000
+        },
+        {
+          id: '4',
+          title: 'Review CPC Week 5 assignment submission rubric',
+          description: 'Double check code organization, TypeScript interfaces, and accessibility features.',
+          completed: false,
+          priority: 'low',
+          category: 'Work',
+          dueDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0],
+          createdAt: Date.now()
+        }
+      ];
+
+      createApp({
+        setup() {
+          const categories = ['Study', 'Work', 'Personal', 'Health', 'Coding'];
+          const priorities = [
+            { value: 'low', label: 'Low' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'high', label: 'High' }
+          ];
+
+          const todos = ref([]);
+          const currentFilter = ref('all');
+          const categoryFilter = ref('all');
+          const priorityFilter = ref('all');
+          const searchQuery = ref('');
+          const sortBy = ref('createdAt');
+
+          // Form fields
+          const newTitle = ref('');
+          const newDesc = ref('');
+          const newCategory = ref('Study');
+          const newPriority = ref('medium');
+          const newDueDate = ref('');
+          const isExpanded = ref(false);
+
+          const formattedDate = new Intl.DateTimeFormat('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric'
+          }).format(new Date());
+
+          const loadTodos = () => {
+            const saved = localStorage.getItem('cpc_week5_todos_preview');
+            if (saved) {
+              try {
+                todos.value = JSON.parse(saved);
+              } catch (e) {
+                todos.value = [...SAMPLE_TODOS];
+              }
+            } else {
+              todos.value = [...SAMPLE_TODOS];
+            }
+          };
+
+          watch(
+            todos,
+            (newVal) => {
+              localStorage.setItem('cpc_week5_todos_preview', JSON.stringify(newVal));
+            },
+            { deep: true }
+          );
+
+          onMounted(() => {
+            loadTodos();
+          });
+
+          const addTodo = () => {
+            const trimmed = newTitle.value.trim();
+            if (!trimmed) return;
+
+            todos.value.unshift({
+              id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+              title: trimmed,
+              description: newDesc.value.trim() || undefined,
+              completed: false,
+              priority: newPriority.value,
+              category: newCategory.value,
+              dueDate: newDueDate.value || undefined,
+              createdAt: Date.now()
+            });
+
+            newTitle.value = '';
+            newDesc.value = '';
+            newDueDate.value = '';
+            isExpanded.value = false;
+          };
+
+          const toggleTodo = (id) => {
+            const t = todos.value.find((item) => item.id === id);
+            if (t) t.completed = !t.completed;
+          };
+
+          const deleteTodo = (id) => {
+            todos.value = todos.value.filter((item) => item.id !== id);
+          };
+
+          const markAllToggle = () => {
+            const allDone = todos.value.every((t) => t.completed);
+            todos.value.forEach((t) => {
+              t.completed = !allDone;
+            });
+          };
+
+          const clearCompleted = () => {
+            todos.value = todos.value.filter((t) => !t.completed);
+          };
+
+          const resetToDefaults = () => {
+            todos.value = [...SAMPLE_TODOS];
+          };
+
+          const stats = computed(() => {
+            const total = todos.value.length;
+            const completed = todos.value.filter((t) => t.completed).length;
+            const active = total - completed;
+            const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+            return { total, active, completed, percentage };
+          });
+
+          const getDueStatus = (dueDate) => {
+            if (!dueDate) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(dueDate + 'T00:00:00');
+            const diffDays = Math.ceil((due.getTime() - today.getTime()) / 86400000);
+
+            if (diffDays < 0) return { text: Math.abs(diffDays) + 'd overdue', type: 'overdue' };
+            if (diffDays === 0) return { text: 'Due today', type: 'today' };
+            if (diffDays === 1) return { text: 'Due tomorrow', type: 'soon' };
+            return { text: 'Due in ' + diffDays + 'd', type: 'normal' };
+          };
+
+          const filteredTodos = computed(() => {
+            let res = todos.value.filter((t) => {
+              if (currentFilter.value === 'active' && t.completed) return false;
+              if (currentFilter.value === 'completed' && !t.completed) return false;
+              if (categoryFilter.value !== 'all' && t.category !== categoryFilter.value) return false;
+              if (priorityFilter.value !== 'all' && t.priority !== priorityFilter.value) return false;
+              if (searchQuery.value.trim()) {
+                const q = searchQuery.value.toLowerCase().trim();
+                const mTitle = t.title.toLowerCase().includes(q);
+                const mDesc = t.description ? t.description.toLowerCase().includes(q) : false;
+                if (!mTitle && !mDesc) return false;
+              }
+              return true;
+            });
+
+            const pWeights = { high: 3, medium: 2, low: 1 };
+            res.sort((a, b) => {
+              if (sortBy.value === 'createdAt') return b.createdAt - a.createdAt;
+              if (sortBy.value === 'dueDate') {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return a.dueDate.localeCompare(b.dueDate);
+              }
+              if (sortBy.value === 'priority') return pWeights[b.priority] - pWeights[a.priority];
+              if (sortBy.value === 'title') return a.title.localeCompare(b.title);
+              return 0;
+            });
+
+            return res;
+          });
+
+          return {
+            categories,
+            priorities,
+            todos,
+            currentFilter,
+            categoryFilter,
+            priorityFilter,
+            searchQuery,
+            sortBy,
+            newTitle,
+            newDesc,
+            newCategory,
+            newPriority,
+            newDueDate,
+            isExpanded,
+            formattedDate,
+            stats,
+            filteredTodos,
+            addTodo,
+            toggleTodo,
+            deleteTodo,
+            markAllToggle,
+            clearCompleted,
+            resetToDefaults,
+            getDueStatus
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>
